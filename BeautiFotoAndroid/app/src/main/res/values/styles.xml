@@ -4,7 +4,7 @@
     <style name="AppTheme" parent="AppTheme.Base"/>
 
     <style name="AppTheme.Base" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
+
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
 
@@ -17,8 +17,7 @@
         <!-- colorAccent is used as the default value for colorControlActivated -->
         <item name="colorAccent">@color/colorAccent</item>
 
-        <!-- You can also set colorControlNormal, colorControlActivated
-             colorControlHighlight & colorSwitchThumbNormal. -->
+
     </style>
 
 </resources>
