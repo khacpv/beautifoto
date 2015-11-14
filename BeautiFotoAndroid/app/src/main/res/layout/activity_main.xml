@@ -34,7 +34,7 @@
 
     <fragment
         android:id="@+id/fragment_navigation_drawer"
-        android:name="com.oicmap.beautifotoandroid.screen.navigation.FragmentDrawer"
+        android:name="com.oicmap.beautifoto.screen.navigation.FragmentDrawer"
         android:layout_width="@dimen/nav_drawer_width"
         android:layout_height="match_parent"
         android:layout_gravity="start"

@@ -8,18 +8,18 @@
 
     <string name="nav_item_home">Home</string>
     <string name="nav_item_friends">Friends</string>
-    <string name="nav_item_notifications">Messages</string>
+    <string name="nav_item_setting">Setting</string>
 
     <!-- navigation drawer item labels  -->
     <string-array name="nav_drawer_labels">
         <item>@string/nav_item_home</item>
         <item>@string/nav_item_friends</item>
-        <item>@string/nav_item_notifications</item>
+        <item>@string/nav_item_setting</item>
     </string-array>
 
-    <string name="title_messages">Messages</string>
+    <string name="title_home">Beauty Photo</string>
     <string name="title_friends">Friends</string>
-    <string name="title_home">Home</string>
+    <string name="title_setting">Setting</string>
 
     <string name="hint_name">Full Name</string>
     <string name="hint_email">Email</string>
