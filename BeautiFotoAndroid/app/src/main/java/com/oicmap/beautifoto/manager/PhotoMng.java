@@ -1,12 +1,12 @@
 package com.oicmap.beautifoto.manager;
 
-import android.util.Log;
-
-import com.oicmap.beautifoto.common.rx.subcriber.SubscriberSimple;
 import com.oicmap.beautifoto.model.Photo;
 import com.oicmap.beautifoto.network.NetworkMng;
 import com.oicmap.beautifoto.network.response.GetPhotoSizeByIdRsp;
 import com.oicmap.beautifoto.network.response.GetRandomPhotoRsp;
+import com.oicmap.beautifoto.network.response.GetRecentPhotoRsp;
+import com.oicmap.beautifoto.network.response.entity.FlickrPhoto;
+import com.oicmap.beautifoto.network.response.entity.Size;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,45 +31,56 @@ public class PhotoMng extends BaseMng {
     }
 
     /**
-     * @return ids photos
-     * */
-    public Observable<List<String>> getRandomPhoto(){
-        return NetworkMng.getInstance().getFlickrApi().getRandomPhotos()
+     * @return id photos
+     */
+    public Observable<List<String>> getRecentPhoto() {
+        return NetworkMng.getInstance().getFlickrApi().getRecentPhotos()
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .map(new Func1<GetRandomPhotoRsp, List<GetRandomPhotoRsp.FlickrPhoto>>() {
+                .map(new Func1<GetRecentPhotoRsp, List<FlickrPhoto>>() {
                     @Override
-                    public List<GetRandomPhotoRsp.FlickrPhoto> call(GetRandomPhotoRsp getRandomPhotoRsp) {
+                    public List<FlickrPhoto> call(GetRecentPhotoRsp getRandomPhotoRsp) {
                         return getRandomPhotoRsp.photos.photo;
                     }
                 })
-                .flatMap(new Func1<List<GetRandomPhotoRsp.FlickrPhoto>, Observable<List<String>>>() {
+                .map(new Func1<List<FlickrPhoto>, List<String>>() {
                     @Override
-                    public Observable<List<String>> call(List<GetRandomPhotoRsp.FlickrPhoto> getRandomPhotoRsp) {
-                        List<String> data = new ArrayList<>();
-                        for (GetRandomPhotoRsp.FlickrPhoto item : getRandomPhotoRsp) {
-                            data.add(item.serverId);
-                            getPhotoById(item.serverId).subscribe(new SubscriberSimple<List<Photo>>(){
-                                @Override
-                                public void onNext(List<Photo> photos) {
-                                    super.onNext(photos);
-                                }
-
-                                @Override
-                                public void onError(Throwable e) {
-                                    super.onError(e);
-                                    if(e!=null){
-                                        e.printStackTrace();
-                                    }
-                                }
-                            });
+                    public List<String> call(List<FlickrPhoto> flickrPhotos) {
+                        List<String> ids = new ArrayList<>();
+                        for(FlickrPhoto photo: flickrPhotos){
+                            ids.add(photo.serverId);
                         }
-                        return Observable.just(data);
+                        return ids;
                     }
                 });
     }
 
-    public Observable<List<Photo>> getPhotoById(String id){
+    /**
+     * @return id photos
+     */
+    public Observable<List<String>> getRandomPhoto() {
+        return NetworkMng.getInstance().getFlickrApi().getRandomPhotos()
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(new Func1<GetRandomPhotoRsp, List<FlickrPhoto>>() {
+                    @Override
+                    public List<FlickrPhoto> call(GetRandomPhotoRsp getRandomPhotoRsp) {
+                        return getRandomPhotoRsp.photos.photo;
+                    }
+                })
+                .map(new Func1<List<FlickrPhoto>, List<String>>() {
+                    @Override
+                    public List<String> call(List<FlickrPhoto> flickrPhotos) {
+                        List<String> ids = new ArrayList<>();
+                        for (FlickrPhoto photo : flickrPhotos) {
+                            ids.add(photo.serverId);
+                        }
+                        return ids;
+                    }
+                });
+    }
+
+    public Observable<List<Photo>> getPhotoById(String id) {
         return NetworkMng.getInstance().getFlickrApi().getPhotoSizeById(id)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -77,12 +88,11 @@ public class PhotoMng extends BaseMng {
                     @Override
                     public List<Photo> call(GetPhotoSizeByIdRsp rsp) {
                         List<Photo> data = new ArrayList<>();
-                        for(GetPhotoSizeByIdRsp.Size size: rsp.sizes.size){
+                        for (Size size : rsp.sizes.size) {
                             Photo photo = new Photo();
                             photo.url = size.source;
                             photo.width = size.width;
                             photo.height = size.height;
-                            Log.e(PhotoMng.class.getName(), String.format("load photo:%s -%s.%s", photo.url,photo.width,photo.height));
                             data.add(photo);
                         }
                         return data;

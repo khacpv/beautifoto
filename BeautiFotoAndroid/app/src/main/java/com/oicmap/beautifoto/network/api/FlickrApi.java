@@ -2,6 +2,7 @@ package com.oicmap.beautifoto.network.api;
 
 import com.oicmap.beautifoto.network.response.GetPhotoSizeByIdRsp;
 import com.oicmap.beautifoto.network.response.GetRandomPhotoRsp;
+import com.oicmap.beautifoto.network.response.GetRecentPhotoRsp;
 
 import retrofit.http.GET;
 import retrofit.http.Query;
@@ -13,11 +14,14 @@ import rx.Observable;
  */
 public interface FlickrApi {
 
-    int PERPAGE = 100;
+    int PERPAGE = 20;
 
     String KEY_API = "4ef2fe2affcdd6e13218f5ddd0e2500d";
 
     String SV_PROD = "https://api.flickr.com/services";
+
+    @GET("/rest?method=flickr.photos.getRecent&format=json&nojsoncallback=1")
+    Observable<GetRecentPhotoRsp> getRecentPhotos();
 
     @GET("/rest?method=flickr.interestingness.getList&format=json&nojsoncallback=1")
     Observable<GetRandomPhotoRsp> getRandomPhotos();

@@ -1,69 +1,98 @@
 package com.oicmap.beautifoto.screen.home;
 
-import android.graphics.Color;
-import android.os.Bundle;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.ProgressBar;
 
 import com.oicmap.beautifoto.R;
+import com.oicmap.beautifoto.common.rx.subcriber.SubscriberSimple;
+import com.oicmap.beautifoto.manager.PhotoMng;
+import com.oicmap.beautifoto.model.Photo;
+import com.oicmap.beautifoto.screen.BaseFragment;
+import com.oicmap.beautifoto.screen.home.adapter.PhotoAdapter;
 
-public class HomeFragment extends Fragment {
+import java.util.ArrayList;
+import java.util.List;
 
-    private CoordinatorLayout coordinatorLayout;
-    private FloatingActionButton fab;
+import butterknife.Bind;
 
-    public HomeFragment() {
-        // Required empty public constructor
+public class HomeFragment extends BaseFragment {
+
+    //============= CONSTANTS ==================================
+
+    //============= VARIABLES ==================================
+
+    PhotoAdapter adapter;
+
+    List<Photo> photos;
+
+    int photoNumber;
+
+    //============= VIEWS ======================================
+
+    @Bind(R.id.recyclerView)
+    RecyclerView recyclerView;
+
+    @Bind(R.id.loading)
+    ProgressBar loading;
+
+    @Override
+    protected View initView(LayoutInflater inflater, ViewGroup container) {
+        return inflater.inflate(R.layout.fragment_home, container, false);
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void initAfterViewCreated() {
+        recyclerView.setLayoutManager(new LinearLayoutManager(mainActivity,LinearLayoutManager.VERTICAL,false));
 
-    }
+        photos = new ArrayList<>();
+        adapter = new PhotoAdapter(mainActivity, photos);
+        recyclerView.setAdapter(adapter);
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_home, container, false);
 
-        coordinatorLayout = (CoordinatorLayout) rootView.findViewById(R.id.coordinatorLayout);
-
-        fab = (FloatingActionButton) rootView.findViewById(R.id.fab);
-
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showSnackBar();
-            }
-        });
-
-        return rootView;
-    }
-
-    private void showSnackBar(){
-        Snackbar snackbar = Snackbar.make(coordinatorLayout, "No internet connection!", Snackbar.LENGTH_LONG)
-                .setAction("RETRY", new View.OnClickListener() {
+        PhotoMng.getInstance().getRecentPhoto()
+                .subscribe(new SubscriberSimple<List<String>>() {
                     @Override
-                    public void onClick(View view) {
+                    public void onNext(List<String> photoList) {
+                        super.onNext(photoList);
+                        loading.setVisibility(View.VISIBLE);
+                        for(String id: photoList){
+                            PhotoMng.getInstance().getPhotoById(id)
+                                .subscribe(new SubscriberSimple<List<Photo>>() {
+                                    @Override
+                                    public void onNext(List<Photo> photos) {
+                                        super.onNext(photos);
+                                        addPhoto(photos.get(photos.size()-1));
+                                    }
 
+                                    @Override
+                                    public void onCompleted(boolean success, List<Photo> photos, Throwable e) {
+                                        super.onCompleted(success, photos, e);
+                                        if(HomeFragment.this.photos.size() == photoNumber){
+                                            loading.setVisibility(View.GONE);
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onError(Throwable e) {
+                                        super.onError(e);
+                                        photoNumber--;
+                                    }
+                                });
+                        }
+
+                        photoNumber = photoList.size();
                     }
                 });
-
-        // Changing message text color
-        snackbar.setActionTextColor(Color.RED);
-
-        // Changing action button text color
-        View sbView = snackbar.getView();
-        TextView textView = (TextView) sbView.findViewById(android.support.design.R.id.snackbar_text);
-        textView.setTextColor(Color.YELLOW);
-
-        snackbar.show();
     }
+
+    public synchronized void addPhoto(Photo photo){
+        HomeFragment.this.photos.add(adapter.getItemCount(),photo);
+        adapter.notifyDataSetChanged();
+    }
+
+    //============= INNER CLASS ==================================
 }

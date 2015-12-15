@@ -17,6 +17,7 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
     List<NavDrawerItem> data = Collections.emptyList();
     private LayoutInflater inflater;
     private Context context;
+    int currentSelectedIndex = 0;
 
     public NavigationDrawerAdapter(Context context, List<NavDrawerItem> data) {
         this.context = context;
@@ -40,6 +41,19 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
     public void onBindViewHolder(MyViewHolder holder, int position) {
         NavDrawerItem current = data.get(position);
         holder.title.setText(current.getTitle());
+        holder.title.setTextColor(context.getResources().getColorStateList(R.color.xml_color_text_nav));
+        if(currentSelectedIndex == position){
+            holder.title.setTextColor(context.getResources().getColor(R.color.colorTextActive));
+            holder.title.setBackgroundResource(R.color.colorBgActive);
+        }else{
+            holder.title.setTextColor(context.getResources().getColor(R.color.colorTextNormal));
+            holder.title.setBackgroundResource(R.color.colorBgNormal);
+        }
+    }
+
+    public void setCurrentSelectedIndex(int index){
+        this.currentSelectedIndex = index;
+        notifyDataSetChanged();
     }
 
     @Override

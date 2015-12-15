@@ -7,4 +7,10 @@
     <color name="textColorPrimary">#FFFFFF</color>
     <color name="windowBackground">#FFFFFF</color>
     <color name="navigationBarColor">#000000</color>
+
+    <color name="colorTextNormal">#AEAEAE</color>
+    <color name="colorTextActive">#6A1B9A</color>
+
+    <color name="colorBgNormal">#00000000</color>
+    <color name="colorBgActive">#E5E5E5</color>
 </resources>

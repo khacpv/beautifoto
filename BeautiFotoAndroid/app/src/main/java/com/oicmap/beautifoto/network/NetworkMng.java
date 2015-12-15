@@ -6,7 +6,10 @@ import com.oicmap.beautifoto.network.api.FlickrApi;
 import com.oicmap.beautifoto.network.handle.ErrorRetrofitHandlerException;
 import com.squareup.okhttp.OkHttpClient;
 
+import java.security.GeneralSecurityException;
 import java.util.concurrent.TimeUnit;
+
+import javax.net.ssl.SSLContext;
 
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
@@ -38,6 +41,14 @@ public class NetworkMng {
         final OkHttpClient okHttpClient = new OkHttpClient();
         okHttpClient.setReadTimeout(5, TimeUnit.MINUTES);
         okHttpClient.setConnectTimeout(5, TimeUnit.MINUTES);
+        SSLContext sslContext;
+        try {
+            sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, null, null);
+        } catch (GeneralSecurityException e) {
+            throw new AssertionError(); // The system has no TLS. Just give up.
+        }
+        okHttpClient.setSslSocketFactory(sslContext.getSocketFactory());
 
         // FLICKR API
         RequestInterceptor requestInterceptorKoala = new RequestInterceptor() {
@@ -60,6 +71,7 @@ public class NetworkMng {
                 .setClient(new OkClient(okHttpClient))
                 .build();
         flickrApi = restAdapter.create(FlickrApi.class);
+
     }
 
     public FlickrApi getFlickrApi(){

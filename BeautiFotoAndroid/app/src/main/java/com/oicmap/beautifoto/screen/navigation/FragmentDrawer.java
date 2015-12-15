@@ -1,7 +1,6 @@
 package com.oicmap.beautifoto.screen.navigation;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,30 +11,44 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.oicmap.beautifoto.R;
+import com.oicmap.beautifoto.common.eventbus.api.OnEventBusListener;
 import com.oicmap.beautifoto.common.views.ClickListener;
 import com.oicmap.beautifoto.common.views.drawer.FragmentDrawerListener;
 import com.oicmap.beautifoto.common.views.recyclerview.RecyclerTouchListener;
+import com.oicmap.beautifoto.screen.BaseFragment;
 import com.oicmap.beautifoto.screen.navigation.adapter.NavigationDrawerAdapter;
 import com.oicmap.beautifoto.screen.navigation.model.NavDrawerItem;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class FragmentDrawer extends Fragment {
+import butterknife.Bind;
+
+public class FragmentDrawer extends BaseFragment {
+
+    //============= CONSTANTS ==================================
 
     private static String TAG = FragmentDrawer.class.getSimpleName();
 
-    private RecyclerView recyclerView;
-    private ActionBarDrawerToggle mDrawerToggle;
-    private DrawerLayout mDrawerLayout;
+    //============= VARIABLES ==================================
+
     private NavigationDrawerAdapter adapter;
+
+    private ActionBarDrawerToggle mDrawerToggle;
+
+    private DrawerLayout mDrawerLayout;
+
     private View containerView;
+
     private static String[] titles = null;
+
     private FragmentDrawerListener drawerListener;
 
-    public FragmentDrawer() {
+    //============= VIEWS ======================================
 
-    }
+
+    @Bind(R.id.drawerList)
+    RecyclerView recyclerView;
 
     public void setDrawerListener(FragmentDrawerListener listener) {
         this.drawerListener = listener;
@@ -62,12 +75,12 @@ public class FragmentDrawer extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflating view layout
-        View layout = inflater.inflate(R.layout.fragment_navigation_drawer, container, false);
-        recyclerView = (RecyclerView) layout.findViewById(R.id.drawerList);
+    protected View initView(LayoutInflater inflater, ViewGroup container) {
+        return inflater.inflate(R.layout.fragment_navigation_drawer, container, false);
+    }
 
+    @Override
+    protected void initAfterViewCreated() {
         adapter = new NavigationDrawerAdapter(getActivity(), getData());
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -83,10 +96,11 @@ public class FragmentDrawer extends Fragment {
 
             }
         }));
-
-        return layout;
     }
 
+    public void setCurrentIndex(int index){
+        adapter.setCurrentSelectedIndex(index);
+    }
 
     public void setUp(int fragmentId, DrawerLayout drawerLayout, final Toolbar toolbar) {
         containerView = getActivity().findViewById(fragmentId);
